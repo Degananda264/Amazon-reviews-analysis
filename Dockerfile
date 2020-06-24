@@ -1,12 +1,17 @@
-# light weight python
-FROM python:3.7-slim
+FROM python:3.7
 
-#copy local to container image
-ENV APP_HOME /app
-WORKDIR $APP_HOME
-COPY . ./
+RUN pip install virtualenv
+ENV VIRTUAL_ENV=/venv
+RUN virtualenv venv -p python3
+ENV PATH="VIRTUAL_ENV/bin:$PATH"
+
+WORKDIR /app
+ADD . /app
 #Install Dependencies
 RUN pip install tensorflow==2.0.0 tensorflow-datasets Flask gunicorn healthcheck 
 
-#Run the flask service on container startip
-CMD exec gunicorn --bind :$PORT --workers 1 --threads 8 SAGunicorn:app
+# Expose port 
+ENV PORT 8080
+
+# Run the application:
+CMD ["gunicorn", "app:app", "--config=config.py"]
